@@ -1,0 +1,21 @@
+---
+layout: post
+title: Nexus' ACLs Should be Taken Out and Shot
+date: 2012-11-16 18:50:48.000000000 -08:00
+categories: []
+tags: []
+status: draft
+type: post
+published: false
+meta:
+  _edit_last: '16448603'
+author:
+  login: elemecca
+  email: aryaniae@gmail.com
+  display_name: elemecca
+  first_name: ''
+  last_name: ''
+---
+<p>I've just deployed <a href="http://www.sonatype.org/nexus/">Sonatype Nexus OSS</a> at work. On the whole it's a great product, but its permissions system makes me want to punch something. The underlying design is solid, but there are two or three glaring omissions that utterly destroy it. </p>
+<p>Nexus' ACLs are arranged around four central concepts: targets, privileges, roles, and users. Targets are what permissions grant access to. A target is the combination of a an artifact type and one or more regular expressions that select artifacts based on their path within the repository. A privilege is the application of a target to a repository or group of repositories. Each privilege has four components, one for each of the CRUD operations. There are also some special system permissions that control access to parts of the UI. Roles are collections of privileges used to simplify management. Each user can be assigned to multiple roles.</p>
+<p>So far all of this is fairly standard RBAC. Where it breaks down is the lack of negativity. In most RBAC systems you can deny a permission to a role, and that will override any grants of the same permission. Not so in Nexus. </p>

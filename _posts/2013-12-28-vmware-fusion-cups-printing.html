@@ -1,0 +1,86 @@
+---
+layout: post
+title: Sharing OS X Printers with Linux in VMware Fusion
+date: 2013-12-28 07:09:07.000000000 -08:00
+categories:
+- Hacks
+tags:
+- CUPS
+- Mac OS X
+- printing
+- virtual machines
+- VMware Fusion
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '16448603'
+  _publicize_pending: '1'
+author:
+  login: elemecca
+  email: aryaniae@gmail.com
+  display_name: elemecca
+  first_name: ''
+  last_name: ''
+---
+<p>VMware Fusion offers the ability to share OS X's printers with guest OSes via its ThinPrint driver, but that often doesn't support the more advanced options of business-grade printers and copy machines. Most Linux distributions use the C UNIX Printing System (CUPS), which is also used by OS X. CUPS is inherently networked even when working within a single machine, so it's fairly simple to set up a Linux guest to print to the OS X host's CUPS server.<br />
+<h2>Enable Network Access to CUPS</h2>
+<p>By default, OS X's installation of CUPS is configured to only accept connections from the local machine. In order to print to it from our Linux guests we'll need to enable access from the VMware host-only network. This is complicated somewhat by the fact that in OS X the CUPS daemon does not run all the time; it's launched in an inetd-like manner by OS X's launchd system. We therefore need to tell launchd to accept connections from VMware guests first. Unfortunately, VMware Fusion doesn't create its virtual network interfaces until a VM is started, so we can't bind launchd to the actual interface address. Instead we'll have launchd listen on all interfaces and configure CUPS to ignore connections on other interfaces.</p>
+<h3>Configure launchd</h3>
+<p>In a terminal, run <br />
+<code>sudo nano /System/Library/LaunchDaemons/org.cups.cupsd.plist</code></p>
+<p>Find the section that looks like this:</p>
+<pre>&lt;dict&gt;
+    &lt;key&gt;SockNodeName&lt;/key&gt;
+    &lt;string&gt;127.0.0.1&lt;/string&gt;
+    &lt;key&gt;SockServiceName&lt;/key&gt;
+    &lt;string&gt;ipp&lt;/string&gt;
+&lt;/dict&gt;</pre>
+<p>Remove the <code>SockNodeName</code> property so it looks like this:</p>
+<pre>&lt;dict&gt;
+    &lt;key&gt;SockServiceName&lt;/key&gt;
+    &lt;string&gt;ipp&lt;/string&gt;
+&lt;/dict&gt;</pre>
+<p>Save the file by typing <code>Ctrl+X</code> and following the on-screen prompts.</p>
+<h3>Configure CUPS</h3>
+<p>In a terminal, run <br />
+<code>sudo nano /etc/cups/cupsd.conf</code></p>
+<p>First we need to make CUPS accept connections from clients on the VMware host-only network. Find your VM's IP address on the host-only network. I'll be something like <code>192.168.143.64</code>. Use the first three sections of yours below if it's different from what's in the example.</p>
+<p>Find the section that looks like this:</p>
+<pre>&lt;Location /&gt;
+  Order allow,deny
+&lt;/Location&gt;</pre>
+<p>Add <code>Allow</code> rules so it looks like this, remembering to substitute your own network prefix if it's different:</p>
+<pre>&lt;Location /&gt;
+  Order allow,deny
+  Allow from @LOCAL
+  Allow from 192.168.143.0/24
+&lt;/Location&gt;</pre>
+<p>Next we need to allow remote clients to get the list of available printers and which one is the default. In the <code>&lt;Policy default&gt;</code> section, find the block that looks like this:</p>
+<pre>&lt;Limit Create-Job Print-Job Print-URI Validate-Job&gt;
+  Order deny,allow
+&lt;/Limit&gt;</pre>
+<p>Add the <code>CUPS-Get-Printers</code> and <code>CUPS-Get-Default</code> operations to the list. It should look like this:</p>
+<pre>&lt;Limit Create-Job Print-Job Print-URI Validate-Job CUPS-Get-Printers CUPS-Get-Default&gt;
+  Order deny,allow
+&lt;/Limit&gt;</pre>
+<p>Save the file by typing <code>Ctrl+X</code> and following the on-screen prompts.</p>
+<h3>Re-start CUPS</h3>
+<p>In a terminal, run <br />
+<code>sudo launchctl unload /System/Library/LaunchDaemons/org.cups.cupsd.plist<br />
+sudo launchctl load /System/Library/LaunchDaemons/org.cups.cupsd.plist</code></p>
+<h2>Install the CUPS Client</h2>
+<p>Now that CUPS on your Mac is listening for connections from the VMware network we can set up your Linux guest to use it. You will, of course, first need to install the CUPS client library. On Debian and derived distributions (including Ubuntu) you want the <code>cups-client</code> package, plus the <code>cups-bsd</code> package for some command-line utilities:<br />
+<code>sudo apt-get install cups-client cups-bsd</code></p>
+<p>On other distributions you'll need to find the appropriate packages for yourself, but they'll usually be named somthing along the lines of <code>cups-client</code> or <code>libcups</code>.</p>
+<h3>Configure the CUPS Client</h3>
+<p>In a terminal on the guest, run<br />
+<code>sudo nano /etc/cups/client.conf</code></p>
+<p>Remove any existing contents and replace them with:</p>
+<pre>Encryption Never
+ServerName 192.168.143.1</pre>
+<p>Remember to use your own network prefix if it's different. Save the file by typing <code>Ctrl+X</code> and following the on-screen prompts.</p>
+<h3>Test the CUPS Client</h3>
+<p>In a terminal on the guest, run<br />
+<code>lpstat -t</code></p>
+<p>You should get a listing of all the printers configured on your Mac and an indication of which is the default.</p></p>

@@ -1,0 +1,36 @@
+---
+layout: post
+title: Moving EBS-backed EC2 Instances Between Accounts or Regions
+date: 2012-06-12 19:21:54.000000000 -07:00
+categories: []
+tags: []
+status: draft
+type: post
+published: false
+meta:
+  _edit_last: '16448603'
+author:
+  login: elemecca
+  email: aryaniae@gmail.com
+  display_name: elemecca
+  first_name: ''
+  last_name: ''
+---
+
+<p><a href="http://www.partimage.org/Main_Page">partimage</a> and <a href="http://code.google.com/p/s3fs/wiki/FuseOverAmazon">s3fs</a></p>
+<p>I recommend creating a separate EC2 instance from which to package your EBS volume. If you're trying to transfer your only instance you haven't much choice. Even if you do have another instance available, it's probably best to use a dedicated one. The transfer is rather resource-intensive, so you probably don't want to inflict it on an instance that's supposed to be doing something else.</p>
+<h2>Installing s3fs</h2>
+<p>Before you can build s3fs you need to install its dependencies. For Debian/Ubuntu users, this should do it:</p>
+<pre>apt-get install build-essential pkg-config libfuse-dev libcurl4-openssl-dev libxml2-dev</pre>
+<pre>wget "http://s3fs.googlecode.com/files/s3fs-1.61.tar.gz"
+tar -xzf s3fs-1.61.tar.gz
+cd s3fs-1.61
+./configure --prefix=/usr
+make
+make install</pre>
+<h2>Imaging the Volume</h2>
+<p>If your terminal colors are set to the defaults you'll be treated to the partimage TUI rendered on an eye-searing fuchsia background. Since the background of their web page is bright yellow, I can only assume this was intentional. I recommend temporarily remapping color5 (magenta) to a nice dark blue if you're using something like PuTTY which supports that.</p>
+<pre>partimage -bdf 3 -z 1 -V 100 -M save /dev/xvdf /s3/partimage_media</pre>
+<h2>Restoring the Image</h2>
+<pre>partimage -bf 3 -z 1 restore /dev/xvdf /s3/test-mysql.000</pre>
+<p>Note that you pass it the first volume of the multi-volume set, not the base name you passed when it was created. Partimage will discover the rest of the volumes from the metadata in the first.</p>

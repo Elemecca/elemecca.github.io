@@ -1,0 +1,83 @@
+---
+layout: page
+title: Collapsing Borders
+date: 2012-04-04 14:38:22.000000000 -07:00
+categories: []
+tags: []
+status: private
+type: page
+published: false
+meta:
+  _edit_last: '16448603'
+  _wp_page_template: default
+author:
+  login: elemecca
+  email: aryaniae@gmail.com
+  display_name: elemecca
+  first_name: ''
+  last_name: ''
+---
+<p>CSS supports two separate models for rendering borders on table cells. In the <a title="CSS 2.1 &sect;17.6.1 Tables / Borders / The separated borders model" href="http://www.w3.org/TR/2011/REC-CSS2-20110607/tables.html#separated-borders" target="_blank">separated borders model</a> each cell has its own complete set of borders, and spacing may optionally be added between the border-edges of adjacent cells. The <a title="CSS 2.1 &sect;17.6.2 Tables / Borders / The collapsing borders model" href="http://www.w3.org/TR/2011/REC-CSS2-20110607/tables.html#collapsing-borders" target="_blank">collapsing borders model</a>, on the other hand, merges the borders of adjacent cells. Cells continue to have content and padding boxes as defined in the box model, but they do not have normal border boxes. Each border line is shared between the two cells it separates and is drawn centered on the grid line between them. When adjacent cells disagree on the style of a particular border the heavier, darker style is preferred.</p>
+<p>Some of the details of the collapsing borders model are left unspecified: some explicitly, others by omission. When you're just using a table to present some data in a document that's usually fine. For heavyweight web applications which require precise display, however, the differences between browsers can be deadly. Every browser's handling is unique in some way and none of them document any of it. I ended up writing <a title="the test suite on GitHub" href="https://github.com/Elemecca/CollapsingBorderTests" target="_blank">a suite of tests in JavaScript</a> to explore the behavior differences and collecting results for all the major browsers. My results are presented below.</p>
+<h3>Centering Borders Between Cells</h3>
+<p>In a table with collapsing borders, the border lines are drawn centered over the divisions between the cells. When a border is an odd number of pixels thick it cannot be centered evenly over the zero-width division line: one cell has to get an extra pixel. The CSS specification explicitly declares which cell gets the extra pixel to be implementation-defined. The browser may choose, but must act consistently. The different browser's choices are summarized in the table below for horizontal (top and bottom) and vertical (left and right) borders. Internet Explorer apparently behaves differently for one-pixel borders, so they're broken out.</p>
+<table>
+<tr>
+<th rowspan="2">Browser</th>
+<th colspan="2">Horizontal</th>
+<th colspan="2">Vertical</th>
+</tr>
+<tr>
+<th>1px</th>
+<th>3px</th>
+<th>1px</th>
+<th>3px</th>
+</tr>
+<tr>
+<td>Chrome <br />
+		<span style="color:#AAA;font-size:70%;">18.0.1025.142</span>
+	</td>
+<td>right</td>
+<td>right</td>
+<td>lower</td>
+<td>lower</td>
+</tr>
+<tr>
+<td>Firefox <br />
+		<span style="color:#AAA;font-size:70%;">11.0</span>
+	</td>
+<td>left</td>
+<td>left</td>
+<td>upper</td>
+<td>upper</td>
+</tr>
+<tr>
+<td>Internet Explorer <br />
+		<span style="color:#AAA;font-size:70%;">9.0.8112.16421</span>
+	</td>
+<td>right</td>
+<td>left</td>
+<td>lower</td>
+<td>upper</td>
+</tr>
+<tr>
+<td>Opera <br />
+		<span style="color:#AAA;font-size:70%;">11.6.1374</span>
+	</td>
+<td>right</td>
+<td>right</td>
+<td>lower</td>
+<td>lower</td>
+</tr>
+<tr>
+<td>Safari <br />
+		<span style="color:#AAA;font-size:70%;">5.1.5 (7534.55.3)</span>
+	</td>
+<td>right</td>
+<td>right</td>
+<td>lower</td>
+<td>lower</td>
+</tr>
+</table>
+<h3>The Offset Properties of Table Cells</h3>
+<p>The <code>offsetTop</code>, <code>offsetLeft</code>, <code>offsetWidth</code>, and <code>offsetHeight</code> properties of element objects in JavaScript are <a title="CSSOM View Module &sect;7.1 The offsetParent, offsetTop, offsetLeft, offsetWidth, and offsetHeight attributes" href="http://www.w3.org/TR/2011/WD-cssom-view-20110804/#offset-attributes" target="_blank">defined relative to the border edge</a> of the element in question. Unfortunately, the CSS specification doesn't define the border edge of cells in tables with collapsing borders, so behavior on those elements is implementation-defined.</p>
