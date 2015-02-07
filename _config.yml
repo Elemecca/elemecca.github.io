@@ -6,3 +6,15 @@ email: sam@maltera.com
 github_username: Elemecca
 
 timezone: America/Los_Angeles
+
+defaults:
+  - scope:
+      type: posts
+    values:
+      layout: post
+      author: Sam Hanes
+
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
