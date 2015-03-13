@@ -18,9 +18,12 @@ subsystems.
 Given that we already have a large and complex schema and several years of
 data we can't get rid of, we need an ORM that can handle our schema without
 significant changes. That means it needs to support:
-- tables with strange names
-- entity properties with names that don't match their underlying column
+
+- entities with names that don't match their tables
+- entity properties with names that don't match their columns
+- entities comprising multiple tables joined one-to-one
 - primary keys not called `id`
+- natural (not auto-numbered) primary keys
 - foreign key columns not named after their target table
 - foreign key relationships without declared constraints
 - composite (multiple column) primary and foreign keys
@@ -56,7 +59,7 @@ significant changes. That means it needs to support:
 
 The core of RedBean is more of an old-school DBO system than a modern ORM.
 It provides CRUD operations on generic objects ("beans"). For more
-model-ish usage custom classes can be associated with particular tables. 
+model-ish usage custom classes can be associated with particular tables.
 
 RedBean generates the schema based on the properties you use in your code.
 That doesn't use static analysis; it updates the schema each time it sees a
@@ -64,7 +67,7 @@ new property being used at runtime. For production you flip a switch that
 makes it error if you use an undefined property instead of changing the
 schema to match. Beans and their properties are matched to the schema
 exclusively by naming convention, so it can't be used with a pre-existing
-schema that doesn't follow its conventions exactly. 
+schema that doesn't follow its conventions exactly.
 
 It seems like RedBean would be a decent choice for rapid development of
 small, short-lived applications. The conventions it requires of the schema
