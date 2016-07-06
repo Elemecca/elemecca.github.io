@@ -40,3 +40,6 @@ validation-report.json
 
 # Folders to ignore
 node_modules
+
+# the Gemfile is dynamic based on GitHub's system 
+Gemfile.lock
