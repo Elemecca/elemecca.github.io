@@ -1,11 +1,20 @@
 title: Elemecca
-description:
-
-author: Sam Hanes
-email: sam@maltera.com
-github_username: Elemecca
+tagline:
+url: http://blog.maltera.com
+paginate: 1
+baseurl:  ""
 
 timezone: America/Los_Angeles
+
+permalink: pretty
+
+author:
+  name: Sam Hanes
+  email: sam@maltera.com
+
+sass:
+  sass_dir:          _sass
+  style:            :compressed
 
 defaults:
   - scope:
@@ -23,3 +32,7 @@ markdown: kramdown
 kramdown:
   input: GFM
   hard_wrap: false
+
+gems:
+  - jekyll-paginate
+  - jekyll-gist
