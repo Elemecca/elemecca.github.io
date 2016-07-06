@@ -28,7 +28,7 @@ standard][airprint] for how network printers should advertise themselves.
 CUPS has a special backend for working with Bonjour printers called
 `dnssd`. It provides two distinct functions: browsing for new printers
 and addressing of existing printers. Unfortunately it doesn't seem to
-have any real documentation. Ususally it Just Works&trade;, but I recently
+have any real documentation. Usually it Just Works&trade;, but I recently
 hit a case where it didn't and had to go read the source code. I've
 documented what I found for future reference.
 
