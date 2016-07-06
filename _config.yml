@@ -1,7 +1,7 @@
 title: Elemecca
 tagline:
 url: http://blog.maltera.com
-paginate: 1
+paginate: 20
 baseurl:  ""
 
 timezone: America/Los_Angeles
