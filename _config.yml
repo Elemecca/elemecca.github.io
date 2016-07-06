@@ -6,8 +6,6 @@ baseurl:  ""
 
 timezone: America/Los_Angeles
 
-permalink: pretty
-
 author:
   name: Sam Hanes
   email: sam@maltera.com
